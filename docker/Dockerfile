@@ -40,7 +40,6 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
     && cp -f .env.example .env \
     && chmod 777 ${QL_DIR}/shell/*.sh \
     && chmod 777 ${QL_DIR}/docker/*.sh \
-    && chmod 777 ./docker/docker-entrypoint.sh \
     && chmod -Rf 777 ${QL_DIR}/jdc \
     && npm install -g pnpm \
     && pnpm install -g pm2 \
