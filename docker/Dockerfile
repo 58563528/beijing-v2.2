@@ -46,6 +46,5 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
     && pnpm install -g ts-node typescript tslib \
     && rm -rf /root/.npm \
     && pnpm install --prod \
-    && rm -rf /root/.pnpm-store \
-RUN chmod +x ./docker/docker-entrypoint.sh
+    && rm -rf /root/.pnpm-store
 ENTRYPOINT ["./docker/docker-entrypoint.sh"]
