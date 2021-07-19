@@ -129,36 +129,107 @@ run_normal() {
     log_path="$log_dir/$log_time.log"
     make_dir "$log_dir"
 
-    local id=$(cat $list_crontab_user | grep -E "$cmd_task $p1$" | perl -pe "s|.*ID=(.*) $cmd_task $p1$|\1|" | xargs | sed 's/ /","/g')
-    update_cron_status "\"$id\"" "0"
-    timeout $command_timeout_time $which_program $p1 2>&1 | tee $log_path
-    update_cron_status "\"$id\"" "1"
+    local id=$(cat $list_crontab_user | grep -E "$cmd_task $p1" | perl -pe "s|.*ID=(.*) $cmd_task $p1\.*|\1|" | head -1 | awk -F " " '{print $1}')
+    local begin_time=$(date '+%Y-%m-%d %H:%M:%S')
+    echo -e "## 开始执行... $begin_time\n" | tee -p -a $log_path
+    [[ $id ]] && update_cron "\"$id\"" "0" "$$" "$log_path"
+    if [[ ! $(. $file_task_before 1>/dev/null) ]]; then
+        . $file_task_before
+    else
+        echo -e "## task_before执行失败，自行检查\n" | tee -p -a $log_path
+    fi
+
+    timeout $command_timeout_time $which_program $p1 2>&1 | tee -p -a $log_path
+
+    if [[ ! $(. $file_task_after 1>/dev/null) ]]; then
+        . $file_task_after
+    else
+        echo -e "## task_after执行失败，自行检查\n" | tee -p -a $log_path
+    fi
+    [[ $id ]] && update_cron "\"$id\"" "1" "" "$log_path"
+    local end_time=$(date '+%Y-%m-%d %H:%M:%S')
+    local diff_time=$(($(date +%s -d "$end_time") - $(date +%s -d "$begin_time")))
+    echo -e "\n## 执行结束... $end_time  耗时 $diff_time 秒" | tee -p -a $log_path
 }
 
 ## 并发执行，因为是并发，所以日志只能直接记录在日志文件中（日志文件以Cookie编号结尾），前台执行并发跑时不会输出日志
 ## 并发执行时，设定的 RandomDelay 不会生效，即所有任务立即执行
 run_concurrent() {
     local p1=$1
+    local p3=$3
+    if [[ ! $p3 ]]; then
+        echo -e "\n 缺少并发运行的环境变量参数"
+        exit 1
+    fi
+
+    local envs=$(eval echo "\$${p3}")
+    local array=($(echo $envs | sed 's/&/ /g'))
     cd $dir_scripts
     define_program "$p1"
-    log_dir="$dir_log/${p1%%.*}"
+    log_time=$(date "+%Y-%m-%d-%H-%M-%S")
+    log_dir_tmp="${p1##*/}"
+    log_dir="$dir_log/${log_dir_tmp%%.*}"
+    log_path="$log_dir/$log_time.log"
     make_dir $log_dir
-    log_time=$(date "+%Y-%m-%d-%H-%M-%S.%N")
-    echo -e "\n各账号间已经在后台开始并发执行，前台不输入日志，日志直接写入文件中。\n"
-    for ((user_num = 1; user_num <= $user_sum; user_num++)); do
-        combine_one $user_num
-        log_path="$log_dir/${log_time}_${user_num}.log"
-        timeout $command_timeout_time $which_program $p1 &>$log_path &
+
+    local id=$(cat $list_crontab_user | grep -E "$cmd_task $p1" | perl -pe "s|.*ID=(.*) $cmd_task $p1\.*|\1|" | head -1 | awk -F " " '{print $1}')
+    local begin_time=$(date '+%Y-%m-%d %H:%M:%S')
+    echo -e "## 开始执行... $begin_time\n" | tee -p -a $log_path
+    [[ $id ]] && update_cron "\"$id\"" "0" "$$" "$log_path"
+    if [[ ! $(. $file_task_before 1>/dev/null) ]]; then
+        . $file_task_before
+    else
+        echo -e "## task_before执行失败，自行检查\n" | tee -p -a $log_path
+    fi
+    echo -e "\n各账号间已经在后台开始并发执行，前台不输入日志，日志直接写入文件中。\n" | tee -p -a $log_path
+
+    single_log_time=$(date "+%Y-%m-%d-%H-%M-%S.%N")
+    for i in "${!array[@]}"; do
+        export ${p3}=${array[i]}
+        single_log_path="$log_dir/${single_log_time}_$((i+1)).log"
+        timeout $command_timeout_time $which_program $p1 &>$single_log_path &
     done
+
+    if [[ ! $(. $file_task_after 1>/dev/null) ]]; then
+        . $file_task_after
+    else
+        echo -e "## task_after执行失败，自行检查\n" | tee -p -a $log_path
+    fi
+    [[ $id ]] && update_cron "\"$id\"" "1" "" "$log_path"
+    local end_time=$(date '+%Y-%m-%d %H:%M:%S')
+    local diff_time=$(($(date +%s -d "$end_time") - $(date +%s -d "$begin_time")))
+    echo -e "\n## 执行结束... $end_time  耗时 $diff_time 秒" | tee -p -a $log_path
 }
 
 ## 运行其他命令
 run_else() {
     local log_time=$(date "+%Y-%m-%d-%H-%M-%S")
-    local log_dir="$dir_log/$1"
-    local log_path="$log_dir/$log_time.log"
+    local log_dir_tmp="${1##*/}"
+    local log_dir="$dir_log/${log_dir_tmp%%.*}"
+    log_path="$log_dir/$log_time.log"
     make_dir "$log_dir"
-    timeout $command_timeout_time "$@" 2>&1 | tee $log_path
+
+    local id=$(cat $list_crontab_user | grep -E "$cmd_task $p1" | perl -pe "s|.*ID=(.*) $cmd_task $p1\.*|\1|" | head -1 | awk -F " " '{print $1}')
+    local begin_time=$(date '+%Y-%m-%d %H:%M:%S')
+    echo -e "## 开始执行... $begin_time\n" | tee -p -a $log_path
+    [[ $id ]] && update_cron "\"$id\"" "0" "$$" "$log_path"
+    if [[ ! $(. $file_task_before 1>/dev/null) ]]; then
+        . $file_task_before
+    else
+        echo -e "## task_before执行失败，自行检查\n" | tee -p -a $log_path
+    fi
+
+    timeout $command_timeout_time "$@" 2>&1 | tee -p -a $log_path
+
+    if [[ ! $(. $file_task_after 1>/dev/null) ]]; then
+        . $file_task_after
+    else
+        echo -e "## task_after执行失败，自行检查\n" | tee -p -a $log_path
+    fi
+    [[ $id ]] && update_cron "\"$id\"" "1" "" "$log_path"
+    local end_time=$(date '+%Y-%m-%d %H:%M:%S')
+    local diff_time=$(($(date +%s -d "$end_time") - $(date +%s -d "$begin_time")))
+    echo -e "\n## 执行结束... $end_time  耗时 $diff_time 秒" | tee -p -a $log_path
 }
 
 ## 命令检测
@@ -171,13 +242,13 @@ main() {
     1)
         run_normal $1
         ;;
-    2)
+    2|3)
         case $2 in
         now)
             run_normal $1 $2
             ;;
         conc)
-            run_concurrent $1 $2
+            run_concurrent $1 $2 $3
             ;;
         *)
             run_else "$@"
