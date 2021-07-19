@@ -51,6 +51,10 @@ original_name=(
 )
 
 ## 导入配置文件
+init_env() {
+    export NODE_PATH=/usr/local/bin:/usr/local/pnpm-global/5/node_modules:/usr/local/lib/node_modules
+    TempBlockCookie=""
+}
 import_config() {
     [ -f $file_config_user ] && . $file_config_user
     user_sum=0
@@ -289,9 +293,7 @@ git_pull_scripts() {
     cd $dir_current
 }
 
-init_env() {
-    TempBlockCookie=""
-}
+
 
 ## 导入配置文件，检测平台，创建软连接，识别命令，修复配置文件
 detect_termux
