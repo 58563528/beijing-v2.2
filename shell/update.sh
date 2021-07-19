@@ -292,6 +292,9 @@ update_qinglong() {
         cd $dir_root
         rm -rf $dir_root/build && rm -rf $dir_root/dist
         cp -rf $ql_static_repo/* $dir_root
+        chmod 777 ${QL_DIR}/shell/*.sh
+        chmod 777 ${QL_DIR}/docker/*.sh
+        chmod 777 ./docker/docker-entrypoint.sh
         if [[ $no_restart != "no-restart" ]]; then
             echo -e "重启面板中..."
             nginx -s reload 2>/dev/null || nginx -c /etc/nginx/nginx.conf
