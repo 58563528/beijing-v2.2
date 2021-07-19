@@ -41,7 +41,7 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
     && chmod 777 ${QL_DIR}/shell/*.sh \
     && chmod 777 ${QL_DIR}/docker/*.sh \
     && chmod -Rf 777 ${QL_DIR}/jdc \
-    && chmod 777 /docker/docker-entrypoint.sh \
+    && chmod 777 ./docker/docker-entrypoint.sh \
     && npm install -g pnpm \
     && pnpm install -g pm2 \
     && pnpm install -g ts-node typescript tslib \
