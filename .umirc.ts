@@ -37,5 +37,7 @@ export default defineConfig({
     'https://cdn.jsdelivr.net/npm/codemirror@5.60.0/lib/codemirror.min.js',
     'https://cdn.jsdelivr.net/npm/darkreader@4.9.27/darkreader.min.js',
     'https://cdn.jsdelivr.net/npm/codemirror@5.60.0/mode/shell/shell.js',
+    'https://cdn.jsdelivr.net/npm/codemirror@5.62.0/mode/python/python.js',
+    'https://cdn.jsdelivr.net/npm/codemirror@5.62.0/mode/javascript/javascript.js',
   ],
 });
