@@ -154,7 +154,6 @@ fix_config() {
     make_dir $dir_config
     make_dir $dir_log
     make_dir $dir_db
-    make_dir $dir_manual_log
     make_dir $dir_scripts
     make_dir $dir_list_tmp
     make_dir $dir_repo
