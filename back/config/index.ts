@@ -13,12 +13,14 @@ const crontabFile = path.join(rootPath, 'config/crontab.list');
 const confBakDir = path.join(rootPath, 'config/bak/');
 const authConfigFile = path.join(rootPath, 'config/auth.json');
 const extraFile = path.join(rootPath, 'config/extra.sh');
+const configPath = path.join(rootPath, 'config/');
+const scriptPath = path.join(rootPath, 'scripts/');
+const samplePath = path.join(rootPath, 'sample/');
 const logPath = path.join(rootPath, 'log/');
 const authError = '错误的用户名密码，请重试';
 const loginFaild = '请先登录!';
 const configString = 'config sample crontab shareCode diy';
 const dbPath = path.join(rootPath, 'db/');
-const manualLogPath = path.join(rootPath, 'manual_log/');
 const cronDbFile = path.join(rootPath, 'db/crontab.db');
 const cookieDbFile = path.join(rootPath, 'db/cookie.db');
 const configFound = dotenv.config({ path: confFile });
@@ -60,5 +62,7 @@ export default {
   dbPath,
   cronDbFile,
   cookieDbFile,
-  manualLogPath,
+  configPath,
+  scriptPath,
+  samplePath,
 };
