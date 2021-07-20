@@ -171,10 +171,10 @@ update_repo() {
     [[ $branch ]] && repo_path="${repo_path}_${branch}"
 
     if [ -d ${repo_path}/.git ]; then
-        reset_romote_url ${repo_path} "${github_proxy_url}${url/https:\/\/ghproxy.com\//}" "v2.2.0"
-        git_pull_scripts ${repo_path} "v2.2.0"
+        reset_romote_url ${repo_path} "${github_proxy_url}${url/https:\/\/ghproxy.com\//}" "${branch}"
+        git_pull_scripts ${repo_path} "${branch}"
     else
-        git_clone_scripts ${url} ${repo_path} "v2.2.0"
+        git_clone_scripts ${url} ${repo_path} "${branch}"
     fi
     if [[ $exit_status -eq 0 ]]; then
         echo -e "\n更新${repo_path}成功...\n"
