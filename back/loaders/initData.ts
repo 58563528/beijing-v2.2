@@ -12,13 +12,13 @@ const initData = [
       6,
       1,
     ).toString()} * * *`,
-    status: CrontabStatus.disabled,
+    isDisabled: 1,
   },
   {
     name: '删除日志',
     command: 'ql rmlog 7',
     schedule: '30 7 */7 * *',
-    status: CrontabStatus.idle,
+    isDisabled: 1,
   },
   {
     name: '互助码',
@@ -66,11 +66,12 @@ export default async () => {
   cronDb
     .find({
       command: /ql (repo|raw)/,
+      isDisabled: { $ne: 1 },
     })
     .exec((err, docs) => {
       for (let i = 0; i < docs.length; i++) {
         const doc = docs[i];
-        if (doc && doc.isDisabled !== 1) {
+        if (doc) {
           exec(doc.command);
         }
       }

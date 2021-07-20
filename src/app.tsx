@@ -10,7 +10,7 @@ const titleMap: any = {
   '/config': '配置文件',
   '/diy': '自定义脚本',
   '/diff': '对比工具',
-  '/log': '日志',
+  '/log': '任务日志',
   '/setting': '系统设置',
 };
 

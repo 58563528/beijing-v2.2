@@ -50,7 +50,7 @@ export default {
       },
       {
         path: '/log',
-        name: '日志',
+        name: '任务日志',
         icon: <FolderOutlined />,
         component: '@/pages/log/index',
       },

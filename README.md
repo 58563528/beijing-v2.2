@@ -8,24 +8,39 @@
 
 <div align="center">
 
-python和javaScript的定时任务管理面板
+Python 和 JavaScript 定时任务管理面板
 
-[![donate][donate-image]][donate-url] [![build status][build-status-image]][build-status-url] [![docker pulls][docker-pulls-image]][docker-pulls-url] [![docker version][docker-version-image]][docker-version-url] [![docker stars][docker-stars-image]][docker-stars-url] [![docker image size][docker-image-size-image]][docker-image-size-url]
+# 青龙2.2-066 去升级版本 
+  
+```
+  docker run -dit \
+   -v $PWD/ql2/config:/ql/config \
+   -v $PWD/ql2/log:/ql/log \
+   -v $PWD/ql2/db:/ql/db \
+   -p 5700:5700 \
+   --name ql2 \
+   --hostname ql2 \
+   --restart always \
+   limoe/qinglong:latest
+ ```
+[![docker version][docker-version-image]][docker-version-url] [![docker pulls][docker-pulls-image]][docker-pulls-url] [![docker stars][docker-stars-image]][docker-stars-url] [![docker image size][docker-image-size-image]][docker-image-size-url] [![donate][donate-image]][donate-url]
 
-[donate-image]: https://img.shields.io/badge/donate-wechat-green?style=for-the-badge
+[donate-image]: https://img.shields.io/badge/donate-wechat-green?style=flat
 [donate-url]: https://qinglong.whyour.cn/nice.png
-[build-status-image]: https://img.shields.io/docker/cloud/build/whyour/qinglong?style=for-the-badge
-[build-status-url]: https://img.shields.io/docker/cloud/build/whyour/qinglong
-[docker-pulls-image]: https://img.shields.io/docker/pulls/whyour/qinglong?style=for-the-badge
+[docker-pulls-image]: https://img.shields.io/docker/pulls/whyour/qinglong?style=flat
 [docker-pulls-url]: https://hub.docker.com/r/whyour/qinglong
-[docker-version-image]: https://img.shields.io/docker/v/whyour/qinglong?style=for-the-badge
+[docker-version-image]: https://img.shields.io/docker/v/whyour/qinglong?style=flat
 [docker-version-url]: https://hub.docker.com/r/whyour/qinglong/tags?page=1&ordering=last_updated
-[docker-stars-image]: https://img.shields.io/docker/stars/whyour/qinglong?style=for-the-badge
+[docker-stars-image]: https://img.shields.io/docker/stars/whyour/qinglong?style=flat
 [docker-stars-url]: https://hub.docker.com/r/whyour/qinglong
-[docker-image-size-image]: https://img.shields.io/docker/image-size/whyour/qinglong?style=for-the-badge
+[docker-image-size-image]: https://img.shields.io/docker/image-size/whyour/qinglong?style=flat
 [docker-image-size-url]: https://hub.docker.com/r/whyour/qinglong
-
 </div>
+
+<p align="center">
+  <img width="49%" src="https://qinglong.whyour.cn/login.png">
+  <img width="49%" src="https://qinglong.whyour.cn/home.png">
+</p>
 
 青龙，又名苍龙，在中国传统文化中是四象之一、[天之四灵](https://zh.wikipedia.org/wiki/%E5%A4%A9%E4%B9%8B%E5%9B%9B%E7%81%B5)之一，根据五行学说，它是代表东方的灵兽，为青色的龙，五行属木，代表的季节是春季，八卦主震。苍龙与应龙一样，都是身具羽翼。《张果星宗》称“又有辅翼，方为真龙”。
 

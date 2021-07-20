@@ -196,7 +196,7 @@ update_raw() {
         echo -e "下载 ${raw_file_name} 成功...\n"
         cd $dir_raw
         local filename="raw_${raw_file_name}"
-        local cron_id=$(cat $list_crontab_user | grep -E "$cmd_task $filename" | perl -pe "s|.*ID=(.*) $cmd_task $filename\.*|\1|" | head -1)
+        local cron_id=$(cat $list_crontab_user | grep -E "$cmd_task $filename" | perl -pe "s|.*ID=(.*) $cmd_task $filename\.*|\1|" | head -1 | head -1 | awk -F " " '{print $1}')
         cp -f $raw_file_name $dir_scripts/${filename}
         cron_line=$(
             perl -ne "{
@@ -253,6 +253,7 @@ usage() {
 
 ## 更新qinglong
 update_qinglong() {
+    patch_version
     local no_restart="$1"
     echo -e "--------------------------------------------------------------\n"
     [ -f $dir_root/package.json ] && ql_depend_old=$(cat $dir_root/package.json)
@@ -289,6 +290,8 @@ update_qinglong() {
         cd $ql_static_repo
         commit_id=$(git rev-parse --short HEAD)
         echo -e "\n当前静态资源版本 $commit_id...\n"
+        local static_version=$(cat /ql/src/version.ts | perl -pe "s|.*\'(.*)\';\.*|\1|" | head -1)
+        echo -e "\n当前版本 $static_version...\n"
         cd $dir_root
         rm -rf $dir_root/build && rm -rf $dir_root/dist
         cp -rf $ql_static_repo/* $dir_root
@@ -302,6 +305,13 @@ update_qinglong() {
         echo -e "\n更新$dir_root失败，请检查原因...\n"
     fi
 
+}
+
+patch_version() {
+
+    if ! type ts-node >/dev/null 2>&1; then
+        pnpm i -g ts-node typescript tslib
+    fi
 }
 
 reload_pm2() {
