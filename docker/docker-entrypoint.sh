@@ -47,7 +47,7 @@ if [[ $EnableExtraShell == true ]]; then
 fi
 echo -e "======================8. 启动JDC========================\n"
 if [[ $ENABLE_WEB_JDC == true ]]; then
-  cd /ql/jdc
+  cd //ql/jdc
   nohup ./JDC &
   echo -e "JDC面板启动成功...\n"
 elif [[ $ENABLE_WEB_JDC == false ]]; then
