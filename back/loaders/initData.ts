@@ -35,7 +35,7 @@ export default async () => {
 
   cronDb.count({}, async (err, count) => {
     if (count === 0) {
-      const data = initData.map((x) => {
+      const data = initData.map((x: any) => {
         const tab = new Crontab(x);
         tab.created = new Date().valueOf();
         tab.saved = false;
