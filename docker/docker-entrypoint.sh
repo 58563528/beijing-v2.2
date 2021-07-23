@@ -54,7 +54,7 @@ if [[ $ENABLE_WEB_JDC == true ]]; then
     echo -e "JDC面板启动成功...\n"
   else
     echo -e "启动JDC...\n"
-    cd //ql/jdc
+    cd /ql/jdc
     pwd
     ./JDC
     nohup ./JDC &
