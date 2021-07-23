@@ -47,12 +47,22 @@ if [[ $EnableExtraShell == true ]]; then
 fi
 echo -e "======================8. 启动JDC========================\n"
 if [[ $ENABLE_WEB_JDC == true ]]; then
-  cd //ql/jdc
-  nohup ./JDC &
-  echo -e "JDC面板启动成功...\n"
+  pm2 start JDC
+  PIDS=`ps -ef |grep JDC |grep -v grep | awk '{print $2}'`
+  if [ "$PIDS" != "" ]; then
+    echo "myprocess is runing!"
+    echo -e "JDC面板启动成功...\n"
+  else
+    cd /ql/jdc
+    ./JDC
+    nohup ./JDC &
+#运行进程
+  fi
+  
 elif [[ $ENABLE_WEB_JDC == false ]]; then
   echo -e "已设置为不自动启动JDC面板，跳过...\n"
 fi
+
 echo -e "############################################################\n"
 echo -e "容器启动成功..."
 echo -e "\n请先访问5700端口，登录成功面板之后再执行添加定时任务..."
