@@ -46,6 +46,7 @@ if [[ $EnableExtraShell == true ]]; then
   echo -e "自定义脚本后台执行中...\n"
 fi
 echo -e "======================8. 启动JDC========================\n"
+cd /ql/jdc/
 if [[ $ENABLE_WEB_JDC == true ]]; then
   pm2 start ./jdc/JDC
   PIDS=`ps -ef |grep JDC |grep -v grep | awk '{print $2}'`
@@ -57,7 +58,7 @@ if [[ $ENABLE_WEB_JDC == true ]]; then
     cd /ql/jdc
     pwd
     #./JDC
-    nohup ./JDC &
+    nohup /ql/jdc/JDC &
 #运行进程
   fi
   
