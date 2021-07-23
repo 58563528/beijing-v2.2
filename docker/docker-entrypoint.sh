@@ -53,7 +53,8 @@ if [[ $ENABLE_WEB_JDC == true ]]; then
     echo "myprocess is runing!"
     echo -e "JDC面板启动成功...\n"
   else
-    cd /ql/jdc
+    echo -e "启动JDC...\n"
+    cd //ql/jdc
     ./JDC
     nohup ./JDC &
 #运行进程
