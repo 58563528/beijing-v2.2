@@ -3,7 +3,7 @@
 [app]
     path            = "/ql/jd" #青龙面板映射文件夹名称,一般为QL或ql
     QLip            = "http://127.0.0.1" #青龙面板的ip
-    QLport          = "6700" #青龙面板的端口，默认为5700
+    QLport          = "5700" #青龙面板的端口，默认为5700
     notice          = "使用京东扫描二维码登录" #公告/说明
     pushQr          = "https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=gQF58DwAAAAAAAAAAS5odHRwOi8vd2VpeGluLnFxLmNvbS9xLzAyMUVnbkVLMDVjWEQxZlFlc2h4YzAAAgT0QfVgAwQAjScA" #消息推送二维码链接
     logName         = "chinnkarahoi_jd_scripts_jd_bean_change" #日志脚本名称
@@ -15,7 +15,7 @@
 
 #web服务设置
 [server]
-    address         = "6702" #端口号设置
+    address         = "5701" #端口号设置
     serverRoot      = "public" #静态目录设置，请勿更改
     serverAgent     = "JDCookie" #服务端UA
 
