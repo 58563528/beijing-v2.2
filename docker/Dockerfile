@@ -41,9 +41,8 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
     && chmod 777 ${QL_DIR}/docker/*.sh \
     && npm install -g pnpm \
     && pnpm install -g pm2 \
-    && pnpm install -g ts-node typescript tslib \
-    && npm install axios date-fns png-js \
-    && npm install canvas --build-from-source \
+    && pnpm install -g ts-node typescript tslib axios date-fns png-js \
+    && npm install -g canvas --build-from-source \
     && rm -rf /root/.npm \
     && pnpm install --prod \
     && rm -rf /root/.pnpm-store \

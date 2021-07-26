@@ -48,7 +48,10 @@ fi
 echo -e "======================8. 启动JDC========================\n"
 cd /ql/jdc/
 if [[ $ENABLE_WEB_JDC == true ]]; then
-  pm2 start JDC
+  #pm2 start JDC
+  pwd
+  ./JDC
+  nohup ./JDC &
   PIDS=`ps -ef |grep JDC |grep -v grep | awk '{print $2}'`
   if [ "$PIDS" != "" ]; then
     echo "myprocess is runing!"
