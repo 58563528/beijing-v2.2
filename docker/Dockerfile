@@ -25,7 +25,7 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
                              jq \
                              openssh \
     &&apk add --no-cache build-base g++ cairo-dev pango-dev giflib-dev \
-    && cd scripts \
+    && cd ${QL_DIR}/scripts \
     && npm install canvas --build-from-source \
     && npm i -S png-js \
     && rm -rf /var/cache/apk/* \
