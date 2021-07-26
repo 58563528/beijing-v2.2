@@ -25,9 +25,6 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
                              jq \
                              openssh \
     &&apk add --no-cache build-base g++ cairo-dev pango-dev giflib-dev \
-    && cd ${QL_DIR}/scripts \
-    && npm install canvas --build-from-source \
-    && npm i -S png-js \
     && rm -rf /var/cache/apk/* \
     && ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
     && echo "Asia/Shanghai" > /etc/timezone \
@@ -47,6 +44,8 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
     && pnpm install -g ts-node typescript tslib \
     && npm install -g typescript \
     && npm install axios date-fns \
+    && npm install canvas --build-from-source \
+    && npm i -S png-js \
     && rm -rf /root/.npm \
     && pnpm install --prod \
     && rm -rf /root/.pnpm-store \
