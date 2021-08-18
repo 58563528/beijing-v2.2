@@ -107,17 +107,17 @@ export default class CookieService {
         },
       },
     )
-      .then((x) => x.json())
+      .then((x) => x.text())
       .then((x) => {
-        if (x.retcode === '0' && x.data && x.data.userInfo) {
+        if (x.match("errNo\":\"0") !=null) {
           return {
-            nickname: x.data.userInfo.baseInfo.nickname,
+            nickname: x.match(/(?<=pin\":\").*?(?=\")/),
             status: CookieStatus.normal,
           };
-        } else if (x.retcode === 13) {
-          return { status: CookieStatus.invalid, nickname: '-' };
+        } else if (x.match("errNo\":\"13") !=null) {
+          return { status: CookieStatus.invalid, nickname: 'ck过期' };
         }
-        return { status: CookieStatus.abnormal, nickname: '-' };
+        return { status: CookieStatus.abnormal, nickname: x };
       });
   }
 
