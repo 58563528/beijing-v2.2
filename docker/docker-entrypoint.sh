@@ -46,7 +46,7 @@ if [[ $EnableExtraShell == true ]]; then
   echo -e "自定义脚本后台执行中...\n"
 fi
 echo -e "======================8. 启动JDC========================\n"
-cd /ql/jdc/
+cd //ql/jdc/
 if [[ $ENABLE_WEB_JDC == true ]]; then
   #pm2 start JDC
   pwd
