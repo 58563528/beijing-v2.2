@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, message, Input, Form } from 'antd';
+import { Modal, message, Input, Form, Statistic } from 'antd';
 import { request } from '@/utils/http';
 import config from '@/utils/config';
 import {
   Loading3QuartersOutlined,
   CheckCircleOutlined,
 } from '@ant-design/icons';
-import { Controlled as CodeMirror } from 'react-codemirror2';
 
 enum CrontabStatus {
   'running',
@@ -14,6 +13,7 @@ enum CrontabStatus {
   'disabled',
   'queued',
 }
+const { Countdown } = Statistic;
 
 const CronLogModal = ({
   cron,
@@ -28,6 +28,7 @@ const CronLogModal = ({
   const [loading, setLoading] = useState<any>(true);
   const [excuting, setExcuting] = useState<any>(true);
   const [isPhone, setIsPhone] = useState(false);
+  const [theme, setTheme] = useState<string>('');
 
   const getCronLog = (isFirst?: boolean) => {
     if (isFirst) {
@@ -52,10 +53,19 @@ const CronLogModal = ({
             log.includes('重启面板') &&
             cron.status === CrontabStatus.running
           ) {
-            message.warning({ content: '系统将在5秒后自动刷新', duration: 5 });
+            message.warning({
+              content: (
+                <span>
+                  系统将在
+                  <Countdown format="ss" value={Date.now() + 1000 * 10} />
+                  秒后自动刷新
+                </span>
+              ),
+              duration: 10,
+            });
             setTimeout(() => {
               window.location.reload();
-            }, 5000);
+            }, 10000);
           }
         }
       })
@@ -96,6 +106,7 @@ const CronLogModal = ({
       title={titleElement()}
       visible={visible}
       centered
+      className="log-modal"
       bodyStyle={{
         overflowY: 'auto',
         maxHeight: 'calc(80vh - var(--vh-offset, 0px))',
@@ -107,15 +118,13 @@ const CronLogModal = ({
       {!loading && value && (
         <pre
           style={
-            !isPhone
-              ? { whiteSpace: 'break-spaces', lineHeight: '17px' }
-              : {
-                  whiteSpace: 'break-spaces',
-                  lineHeight: '17px',
+            isPhone
+              ? {
                   fontFamily: 'Source Code Pro',
                   width: 375,
                   zoom: 0.83,
                 }
+              : {}
           }
         >
           {value}

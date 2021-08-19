@@ -8,6 +8,7 @@ import {
   Space,
   Typography,
   Tooltip,
+  Input,
 } from 'antd';
 import {
   EditOutlined,
@@ -24,8 +25,10 @@ import CookieModal from './modal';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import './index.less';
+import { useCtx } from '@/utils/hooks';
 
 const { Text } = Typography;
+const { Search } = Input;
 
 enum Status {
   '未获取',
@@ -111,6 +114,7 @@ const Config = () => {
     {
       title: '序号',
       align: 'center' as const,
+      width: 50,
       render: (text: string, record: any, index: number) => {
         return <span style={{ cursor: 'text' }}>{index + 1} </span>;
       },
@@ -180,14 +184,20 @@ const Config = () => {
       title: '操作',
       key: 'action',
       align: 'center' as const,
-      render: (text: string, record: any, index: number) => (
-        <Space size="middle">
-          <Tooltip title="编辑">
-            <a onClick={() => editCookie(record, index)}>
-              <EditOutlined />
-            </a>
-          </Tooltip>
-          <Tooltip title={record.status === Status.已禁用 ? '启用' : '禁用'}>
+      render: (text: string, record: any, index: number) => {
+        const isPc = !isPhone;
+        return (
+          <Space size="middle" style={{ paddingLeft: 8 }}>
+            <Tooltip title={isPc ? '编辑' : ''}>
+              <a onClick={() => editEnv(record, index)}>
+                <EditOutlined />
+              </a>
+            </Tooltip>
+            <Tooltip
+              title={
+                isPc ? (record.status === Status.已禁用 ? '启用' : '禁用') : ''
+              }
+            >
             <a onClick={() => enabledOrDisabledCookie(record, index)}>
               {record.status === Status.已禁用 ? (
                 <CheckCircleOutlined />
@@ -196,28 +206,28 @@ const Config = () => {
               )}
             </a>
           </Tooltip>
-          <Tooltip title="删除">
+            <Tooltip title={isPc ? '删除' : ''}>
             <a onClick={() => deleteCookie(record, index)}>
               <DeleteOutlined />
             </a>
           </Tooltip>
         </Space>
-      ),
+        );
+      },
     },
   ];
-  const [width, setWidth] = useState('100%');
-  const [marginLeft, setMarginLeft] = useState(0);
-  const [marginTop, setMarginTop] = useState(-72);
   const [value, setValue] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editedCookie, setEditedCookie] = useState();
   const [selectedRowIds, setSelectedRowIds] = useState<string[]>([]);
+  const [searchText, setSearchText] = useState('');
+  const { headerStyle, isPhone } = useCtx();
 
   const getCookies = () => {
     setLoading(true);
     request
-      .get(`${config.apiPrefix}cookies`)
+      .get(`${config.apiPrefix}cookies?searchValue=${searchText}`)
       .then((data: any) => {
         setValue(data.data);
       })
@@ -433,6 +443,9 @@ const Config = () => {
     });
   };
 
+  const onSearch = (value: string) => {
+    setSearchText(value);
+  };
   useEffect(() => {
     if (document.body.clientWidth < 768) {
       setWidth('auto');
@@ -444,28 +457,26 @@ const Config = () => {
       setMarginTop(-72);
     }
     getCookies();
-  }, []);
+  }, [searchText]);
 
   return (
     <PageContainer
       className="session-wrapper"
       title="Session管理"
       extra={[
+        <Search
+          placeholder="请输入名称/值/备注"
+          style={{ width: 'auto' }}
+          enterButton
+          loading={loading}
+          onSearch={onSearch}
+        />,
         <Button key="2" type="primary" onClick={() => addCookie()}>
           添加Cookie
         </Button>,
       ]}
       header={{
-        style: {
-          padding: '4px 16px 4px 15px',
-          position: 'sticky',
-          top: 0,
-          left: 0,
-          zIndex: 20,
-          marginTop,
-          width,
-          marginLeft,
-        },
+        style: headerStyle,
       }}
     >
       {selectedRowIds.length > 0 && (

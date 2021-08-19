@@ -136,15 +136,15 @@ add_cron() {
             )
             cron_name=$(grep "new Env" $file | awk -F "\(" '{print $2}' | awk -F "\)" '{print $1}' | sed 's:^.\(.*\).$:\1:' | head -1)
             [[ -z $cron_name ]] && cron_name="$file_name"
-            [[ -z $cron_line ]] && cron_line=$(grep "cron:" $file | awk -F ":" '{print $2}' | xargs)
-            [[ -z $cron_line ]] && cron_line=$(grep "cron " $file | awk -F "cron \"" '{print $2}' | awk -F "\" " '{print $1}' | xargs) 
+            [[ -z $cron_line ]] && cron_line=$(grep "cron:" $file | awk -F ":" '{print $2}' | head -1 | xargs)
+            [[ -z $cron_line ]] && cron_line=$(grep "cron " $file | awk -F "cron \"" '{print $2}' | awk -F "\" " '{print $1}' | head -1 | xargs)
             [[ -z $cron_line ]] && cron_line="0 6 * * *"
             result=$(add_cron_api "$cron_line:$cmd_task $file:$cron_name")
             echo -e "$result"
             if [[ $detail ]]; then
-                detail="${detail}\n${result}"
+                detail="${detail}${result}\n"
             else
-                detail="${result}"
+                detail="${result}\n"
             fi
         fi
     done
@@ -153,42 +153,58 @@ add_cron() {
 
 ## 更新脚本仓库
 update_repo() {
-    echo -e "--------------------------------------------------------------\n"
     local url="$1"
     local path="$2"
     local blackword="$3"
     local dependence="$4"
     local branch="$5"
-    local urlTmp="${url%*/}"
-    local repoTmp="${urlTmp##*/}"
-    local repo="${repoTmp%.*}"
     local tmp="${url%/*}"
     local authorTmp1="${tmp##*/}"
     local authorTmp2="${authorTmp1##*:}"
     local author="${authorTmp2##*.}"
 
-    local repo_path="${dir_repo}/${author}_${repo}"
-    [[ $branch ]] && repo_path="${repo_path}_${branch}"
+    local repo_path="${dir_repo}/${uniq_path}"
 
+    local formatUrl="$url"
+    if [[ $github_proxy_url ]]; then
+        if [[ $url =~ "github.com" ]] || [[ $url =~ "githubusercontent.com" ]]; then
+            [[ ! $url =~ "https://ghproxy.com" ]] && formatUrl="${github_proxy_url}${url}"
+        fi
+    fi
     if [ -d ${repo_path}/.git ]; then
-        reset_romote_url ${repo_path} "${github_proxy_url}${url/https:\/\/ghproxy.com\//}" "${branch}"
+        reset_romote_url ${repo_path} "${formatUrl}" "${branch}"
         git_pull_scripts ${repo_path} "${branch}"
     else
-        git_clone_scripts ${url} ${repo_path} "${branch}"
+        git_clone_scripts "${formatUrl}" ${repo_path} "${branch}"
     fi
     if [[ $exit_status -eq 0 ]]; then
         echo -e "\n更新${repo_path}成功...\n"
         diff_scripts "$repo_path" "$author" "$path" "$blackword" "$dependence"
     else
-        echo -e "\n更新${repo_path}失败，请检查原因...\n"
+        echo -e "\n更新${repo_path}失败，重新下载全新仓库...\n"
+        rm -rf ${repo_path}
+        git_clone_scripts "${formatUrl}" ${repo_path} "${branch}"
+        if [[ $exit_status -eq 0 ]]; then
+            echo -e "\n更新${repo_path}成功...\n"
+            diff_scripts "$repo_path" "$author" "$path" "$blackword" "$dependence"
+        else
+            echo -e "\n更新${repo_path}失败，请检查网络...\n"
+        fi
     fi
 }
 
 ## 更新所有 raw 文件
 update_raw() {
     echo -e "--------------------------------------------------------------\n"
-    local raw_url="$1"
-    raw_file_name=$(echo ${raw_url} | awk -F "/" '{print $NF}')
+    local url="$1"
+    local raw_url="$url"
+    if [[ $github_proxy_url ]]; then
+        if [[ $url =~ "github.com" ]] || [[ $url =~ "githubusercontent.com" ]]; then
+            [[ ! $url =~ "https://ghproxy.com" ]] && raw_url="${github_proxy_url}${url}"
+        fi
+    fi
+    local suffix="${raw_url##*.}"
+    local raw_file_name="${uniq_path}.${suffix}"
     echo -e "开始下载：${raw_url} \n\n保存路径：$dir_raw/${raw_file_name}\n"
     wget -q --no-check-certificate -O "$dir_raw/${raw_file_name}.new" ${raw_url}
     if [[ $? -eq 0 ]]; then
@@ -210,12 +226,12 @@ update_raw() {
         )
         cron_name=$(grep "new Env" $raw_file_name | awk -F "\(" '{print $2}' | awk -F "\)" '{print $1}' | sed 's:^.\(.*\).$:\1:' | head -1)
         [[ -z $cron_name ]] && cron_name="$raw_file_name"
-        [[ -z $cron_line ]] && cron_line=$(grep "cron:" $raw_file_name | awk -F ":" '{print $2}' | xargs)
-        [[ -z $cron_line ]] && cron_line=$(grep "cron " $raw_file_name | awk -F "cron \"" '{print $2}' | awk -F "\" " '{print $1}' | xargs) 
+        [[ -z $cron_line ]] && cron_line=$(grep "cron:" $raw_file_name | awk -F ":" '{print $2}' | head -1 | xargs)
+        [[ -z $cron_line ]] && cron_line=$(grep "cron " $raw_file_name | awk -F "cron \"" '{print $2}' | awk -F "\" " '{print $1}' | head -1 | xargs)
         [[ -z $cron_line ]] && cron_line="0 6 * * *"
         if [[ -z $cron_id ]]; then
             result=$(add_cron_api "$cron_line:$cmd_task $filename:$cron_name")
-            echo -e "$result"
+            echo -e "$result\n"
             notify "新增任务通知" "\n$result"
             # update_cron_api "$cron_line:$cmd_task $filename:$cron_name:$cron_id"
         fi
@@ -242,20 +258,19 @@ run_extra_shell() {
 usage() {
     echo -e "本脚本用法："
     echo -e "1. $cmd_update update                                                    # 更新并重启青龙"
-    echo -e "1. $cmd_update extra                                                     # 运行自定义脚本"
+    echo -e "2. $cmd_update extra                                                     # 运行自定义脚本"
     echo -e "3. $cmd_update raw <fileurl>                                             # 更新单个脚本文件"
     echo -e "4. $cmd_update repo <repourl> <path> <blacklist> <dependence> <branch>   # 更新单个仓库的脚本"
     echo -e "5. $cmd_update rmlog <days>                                              # 删除旧日志"
     echo -e "6. $cmd_update code                                                      # 获取互助码"
-    echo -e "6. $cmd_update bot                                                       # 启动tg-bot"
-    echo -e "7. $cmd_update reset                                                     # 重置青龙基础环境"
+    echo -e "7. $cmd_update bot                                                       # 启动tg-bot"
+    echo -e "8. $cmd_update reset                                                     # 重置青龙基础环境"
 }
 
 ## 更新qinglong
 update_qinglong() {
     patch_version
     local no_restart="$1"
-    echo -e "--------------------------------------------------------------\n"
     [ -f $dir_root/package.json ] && ql_depend_old=$(cat $dir_root/package.json)
     reset_romote_url ${dir_root} "${github_proxy_url}https://github.com/58563528/beijing.git"
     git_pull_scripts $dir_root "v2.2.0"
@@ -274,16 +289,10 @@ update_qinglong() {
 
     local url="${github_proxy_url}https://github.com/58563528/beijing_static.git"
     if [ -d ${ql_static_repo}/.git ]; then
-        echo -e "1111...\n"
         reset_romote_url ${ql_static_repo} ${url} "v2.2.0"
-        cd ${ql_static_repo}
-        git fetch --all
-        exit_status=$?
-        git reset --hard origin/v2.2.0
-        cd $dir_root
+        git_pull_scripts ${ql_static_repo} "v2.2.0“
     else
-	echo -e "2222...\n"
-        git_clone_scripts ${url} ${ql_static_repo} "v2.2.0"
+        git_clone_scripts ${url} ${ql_static_repo}
     fi
     if [[ $exit_status -eq 0 ]]; then
         echo -e "\n更新$ql_static_repo成功...\n"
@@ -296,9 +305,9 @@ update_qinglong() {
         rm -rf $dir_root/build && rm -rf $dir_root/dist
         cp -rf $ql_static_repo/* $dir_root
         if [[ $no_restart != "no-restart" ]]; then
-            echo -e "重启面板中..."
             nginx -s reload 2>/dev/null || nginx -c /etc/nginx/nginx.conf
-            sleep 1
+            echo -e "重启面板中..."
+            sleep 3
             reload_pm2
         fi
     else
@@ -316,7 +325,7 @@ patch_version() {
 
 reload_pm2() {
     pm2 l >/dev/null 2>&1
-    
+
     if [[ $(pm2 info panel 2>/dev/null) ]]; then
         pm2 reload panel --source-map-support --time >/dev/null 2>&1
     else
@@ -393,7 +402,12 @@ gen_list_repo() {
         files=$(echo "$files" | egrep -v $blackword)
     fi
     if [[ $dependence ]]; then
-        eval $cmd | sed 's/^..//' | egrep $dependence | xargs -i cp {} $dir_scripts
+        results=$(eval $cmd | sed 's/^..//' | egrep $dependence)
+        for _file in ${results}; do
+            file_path=$(dirname $_file)
+            make_dir "${dir_scripts}/${file_path}"
+            cp -f $_file "${dir_scripts}/${file_path}"
+        done
     fi
     for file in ${files}; do
         filename=$(basename $file)
@@ -406,6 +420,21 @@ gen_list_repo() {
     done
     grep -E "$cmd_task $repo" $list_crontab_user | perl -pe "s|.*ID=(.*) $cmd_task ($repo_.*)\.*|\2|" | awk -F " " '{print $1}' | sort -u >"$dir_list_tmp/${repo}_user.list"
     cd $dir_current
+}
+
+get_uniq_path() {
+  local url="$1"
+  local branch="$2"
+  local urlTmp="${url%*/}"
+  local repoTmp="${urlTmp##*/}"
+  local repo="${repoTmp%.*}"
+  local tmp="${url%/*}"
+  local authorTmp1="${tmp##*/}"
+  local authorTmp2="${authorTmp1##*:}"
+  local author="${authorTmp2##*.}"
+
+  uniq_path="${author}_${repo}"
+  [[ $branch ]] && uniq_path="${uniq_path}_${branch}"
 }
 
 main() {
@@ -421,19 +450,22 @@ main() {
     case $p1 in
     update)
         echo -e "## 开始执行... $begin_time\n" >> $log_path
-        update_qinglong "$2" | tee -p -a $log_path
+        cat $task_error_log_path >> $log_path
+        update_qinglong "$2" >> $log_path
         ;;
     extra)
         echo -e "## 开始执行... $begin_time\n" >> $log_path
-        run_extra_shell | tee -p -a $log_path
+        cat $task_error_log_path >> $log_path
+        run_extra_shell >> $log_path
         ;;
     repo)
         get_user_info
-        local name=$(echo "${p2##*/}" | awk -F "." '{print $1}')
-        log_path="$dir_log/update/${log_time}_$name.log"
+        get_uniq_path "$p2" "$p6"
+        log_path="$dir_log/update/${log_time}_${uniq_path}.log"
         echo -e "## 开始执行... $begin_time\n" >> $log_path
+        cat $task_error_log_path >> $log_path
         if [[ -n $p2 ]]; then
-            update_repo "$p2" "$p3" "$p4" "$p5" "$p6" | tee -p -a $log_path
+            update_repo "$p2" "$p3" "$p4" "$p5" "$p6" >> $log_path
         else
             echo -e "命令输入错误...\n"
             usage
@@ -441,11 +473,12 @@ main() {
         ;;
     raw)
         get_user_info
-        local name=$(echo "${p2##*/}" | awk -F "." '{print $1}')
-        log_path="$dir_log/update/${log_time}_$name.log"
+        get_uniq_path "$p2"
+        log_path="$dir_log/update/${log_time}_${uniq_path}.log"
         echo -e "## 开始执行... $begin_time\n" >> $log_path
+        cat $task_error_log_path >> $log_path
         if [[ -n $p2 ]]; then
-            update_raw "$p2" | tee -p -a $log_path
+            update_raw "$p2" >> $log_path
         else
             echo -e "命令输入错误...\n"
             usage
@@ -453,23 +486,28 @@ main() {
         ;;
     rmlog)
         echo -e "## 开始执行... $begin_time\n" >> $log_path
-        . $dir_shell/rmlog.sh "$p2" | tee -p -a $log_path
+        cat $task_error_log_path >> $log_path
+        . $dir_shell/rmlog.sh "$p2" >> $log_path
         ;;
     code)
-         echo -e "## 开始执行... $begin_time\n" >> $log_path  
-        . $dir_shell/code.sh "$2" | tee -p -a $log_path
+         echo -e "## 开始执行... $begin_time\n" >> $log_path
+	 cat $task_error_log_path >> $log_path
+        . $dir_shell/code.sh "$p2" >> $log_path
         ;;
     bot)
         echo -e "## 开始执行... $begin_time\n" >> $log_path
-        . $dir_shell/bot.sh | tee -p -a $log_path
+        cat $task_error_log_path >> $log_path
+        . $dir_shell/bot.sh >> $log_path
         ;;
     check)
         echo -e "## 开始执行... $begin_time\n" >> $log_path
-        . $dir_shell/check.sh | tee -p -a $log_path
+        cat $task_error_log_path >> $log_path
+        . $dir_shell/check.sh >> $log_path
         ;;
     reset)
         echo -e "## 开始执行... $begin_time\n" >> $log_path
-        . $dir_shell/reset.sh "$2" | tee -p -a $log_path
+        cat $task_error_log_path >> $log_path	
+        . $dir_shell/reset.sh >> $log_path
         ;;
     *)
         echo -e "命令输入错误...\n"
@@ -479,6 +517,7 @@ main() {
     local end_time=$(date '+%Y-%m-%d %H:%M:%S')
     local diff_time=$(($(date +%s -d "$end_time") - $(date +%s -d "$begin_time")))
     echo -e "\n## 执行结束... $end_time  耗时 $diff_time 秒" >> $log_path
+    cat $log_path
 }
 
 main "$@"

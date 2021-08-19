@@ -31,6 +31,7 @@ file_notify_js_sample=$dir_sample/notify.js
 file_notify_py_sample=$dir_sample/notify.py
 file_notify_py=$dir_scripts/notify.py
 file_notify_js=$dir_scripts/sendNotify.js
+task_error_log_path=$dir_log/task_error.log
 
 ## 清单文件
 list_crontab_user=$dir_config/crontab.list
@@ -209,8 +210,8 @@ fix_config() {
     fi
 
     if [ -s /etc/nginx/conf.d/default.conf ]; then
-        echo -e "检测到默认nginx配置文件，删除...\n"
-        rm -f /etc/nginx/conf.d/default.conf
+        echo -e "检测到默认nginx配置文件，清空...\n"
+        echo '' > /etc/nginx/conf.d/default.conf
         echo
     fi
 }
@@ -309,8 +310,10 @@ git_pull_scripts() {
 
 
 ## 导入配置文件，检测平台，创建软连接，识别命令，修复配置文件
+init_env
 detect_termux
 detect_macos
 define_cmd
-init_env
-import_config $1
+
+[ -f $task_error_log_path ] && rm $task_error_log_path
+import_config $1 >> $task_error_log_path 2>&1

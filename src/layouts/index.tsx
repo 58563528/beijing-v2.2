@@ -10,7 +10,6 @@ import defaultProps from './defaultProps';
 import { Link, history } from 'umi';
 import { LogoutOutlined } from '@ant-design/icons';
 import config from '@/utils/config';
-import 'codemirror/mode/shell/shell.js';
 import { request } from '@/utils/http';
 import './index.less';
 import vhCheck from 'vh-check';
@@ -30,6 +29,9 @@ export default function (props: any) {
       history.push('/login');
     }
     vhCheck();
+
+    // patch custome layout title as react node [object, object]
+    document.title = '控制面板';
   }, []);
 
   useEffect(() => {
@@ -42,19 +44,11 @@ export default function (props: any) {
     const theme = localStorage.getItem('qinglong_dark_theme') || 'auto';
     setFetchMethod(window.fetch);
     if (theme === 'dark') {
-      enableDarkMode({
-        brightness: 100,
-        contrast: 90,
-        sepia: 10,
-      });
+      enableDarkMode({});
     } else if (theme === 'light') {
       disableDarkMode();
     } else {
-      followSystemColorScheme({
-        brightness: 100,
-        contrast: 90,
-        sepia: 10,
-      });
+      followSystemColorScheme({});
     }
   }, []);
 
@@ -66,6 +60,8 @@ export default function (props: any) {
   const isSafari =
     navigator.userAgent.includes('Safari') &&
     !navigator.userAgent.includes('Chrome');
+  const isQQBrowser = navigator.userAgent.includes('QQBrowser');
+
   return (
     <ProLayout
       selectedKeys={[props.location.pathname]}
@@ -77,8 +73,9 @@ export default function (props: any) {
               style={{
                 fontSize: isFirefox ? 9 : 12,
                 color: '#666',
-                marginLeft: 5,
+                marginLeft: 2,
                 zoom: isSafari ? 0.66 : 0.8,
+                letterSpacing: isQQBrowser ? -2 : 0,
               }}
             >
               {version}

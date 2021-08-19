@@ -31,6 +31,7 @@ import { PageContainer } from '@ant-design/pro-layout';
 import { request } from '@/utils/http';
 import CronModal from './modal';
 import CronLogModal from './logModal';
+import { useCtx, useTheme } from '@/utils/hooks';
 
 const { Text } = Typography;
 const { Search } = Input;
@@ -68,6 +69,10 @@ const Crontab = () => {
       render: (text: string, record: any) => (
         <span>{record.name || record._id}</span>
       ),
+      sorter: {
+        compare: (a: any, b: any) => a.name.localeCompare(b.name),
+        multiple: 2,
+      },
     },
     {
       title: '任务',
@@ -89,18 +94,27 @@ const Crontab = () => {
           </span>
         );
       },
+      sorter: {
+        compare: (a: any, b: any) => a.command.localeCompare(b.command),
+        multiple: 3,
+      },
     },
     {
       title: '任务定时',
       dataIndex: 'schedule',
       key: 'schedule',
       align: 'center' as const,
+      sorter: {
+        compare: (a: any, b: any) => a.schedule.localeCompare(b.schedule),
+        multiple: 1,
+      },
     },
     {
       title: '状态',
       key: 'status',
       dataIndex: 'status',
       align: 'center' as const,
+      width: 60,
       render: (text: string, record: any) => (
         <>
           {(!record.isDisabled || record.status !== CrontabStatus.idle) && (
@@ -137,48 +151,48 @@ const Crontab = () => {
       title: '操作',
       key: 'action',
       align: 'center' as const,
-      render: (text: string, record: any, index: number) => (
-        <Space size="middle">
-          {record.status === CrontabStatus.idle && (
-            <Tooltip title="运行">
+      render: (text: string, record: any, index: number) => {
+        const isPc = !isPhone;
+        return (
+          <Space size="middle">
+            {record.status === CrontabStatus.idle && (
+              <Tooltip title={isPc ? '运行' : ''}>
+                <a
+                  onClick={() => {
+                    runCron(record, index);
+                  }}
+                >
+                  <PlayCircleOutlined />
+                </a>
+              </Tooltip>
+            )}
+            {record.status !== CrontabStatus.idle && (
+              <Tooltip title={isPc ? '停止' : ''}>
+                <a
+                  onClick={() => {
+                    stopCron(record, index);
+                  }}
+                >
+                  <PauseCircleOutlined />
+                </a>
+              </Tooltip>
+            )}
+            <Tooltip title={isPc ? '日志' : ''}>
               <a
                 onClick={() => {
-                  runCron(record, index);
+                  setLogCron({ ...record, timestamp: Date.now() });
                 }}
               >
-                <PlayCircleOutlined />
+                <FileTextOutlined />
               </a>
             </Tooltip>
-          )}
-          {record.status !== CrontabStatus.idle && (
-            <Tooltip title="停止">
-              <a
-                onClick={() => {
-                  stopCron(record, index);
-                }}
-              >
-                <PauseCircleOutlined />
-              </a>
-            </Tooltip>
-          )}
-          <Tooltip title="日志">
-            <a
-              onClick={() => {
-                setLogCron({ ...record, timestamp: Date.now() });
-              }}
-            >
-              <FileTextOutlined />
-            </a>
-          </Tooltip>
-          <MoreBtn key="more" record={record} index={index} />
-        </Space>
-      ),
+            <MoreBtn key="more" record={record} index={index} />
+          </Space>
+        );
+      },
     },
   ];
 
-  const [width, setWidth] = useState('100%');
-  const [marginLeft, setMarginLeft] = useState(0);
-  const [marginTop, setMarginTop] = useState(-72);
   const [value, setValue] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -189,6 +203,7 @@ const Crontab = () => {
   const [selectedRowIds, setSelectedRowIds] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
+  const { headerStyle, isPhone } = useCtx();
 
   const getCrons = () => {
     setLoading(true);
@@ -429,7 +444,7 @@ const Crontab = () => {
     const index = value.findIndex((x) => x._id === cron._id);
     const result = [...value];
     if (index === -1) {
-      result.push(cron);
+      result.unshift(cron);
     } else {
       result.splice(index, 1, {
         ...cron,
@@ -442,9 +457,7 @@ const Crontab = () => {
     request
       .get(`${config.apiPrefix}crons/${cron._id}`)
       .then((data: any) => {
-        console.log(value);
         const index = value.findIndex((x) => x._id === cron._id);
-        console.log(index);
         const result = [...value];
         result.splice(index, 1, {
           ...cron,
@@ -533,15 +546,6 @@ const Crontab = () => {
   }, [searchText]);
 
   useEffect(() => {
-    if (document.body.clientWidth < 768) {
-      setWidth('auto');
-      setMarginLeft(0);
-      setMarginTop(0);
-    } else {
-      setWidth('100%');
-      setMarginLeft(0);
-      setMarginTop(-72);
-    }
     setPageSize(parseInt(localStorage.getItem('pageSize') || '20'));
   }, []);
 
@@ -558,20 +562,11 @@ const Crontab = () => {
           onSearch={onSearch}
         />,
         <Button key="2" type="primary" onClick={() => addCron()}>
-          添加定时
+          添加任务
         </Button>,
       ]}
       header={{
-        style: {
-          padding: '4px 16px 4px 15px',
-          position: 'sticky',
-          top: 0,
-          left: 0,
-          zIndex: 20,
-          marginTop,
-          width,
-          marginLeft,
-        },
+        style: headerStyle,
       }}
     >
       {selectedRowIds.length > 0 && (

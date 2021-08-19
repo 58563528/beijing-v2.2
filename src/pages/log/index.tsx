@@ -1,10 +1,13 @@
-import { useState, useEffect, useCallback, Key } from 'react';
+import { useState, useEffect, useCallback, Key, useRef } from 'react';
 import { TreeSelect, Tree, Input } from 'antd';
 import config from '@/utils/config';
 import { PageContainer } from '@ant-design/pro-layout';
-import { Controlled as CodeMirror } from 'react-codemirror2';
+import Editor from '@monaco-editor/react';
 import { request } from '@/utils/http';
 import styles from './index.module.less';
+import { Controlled as CodeMirror } from 'react-codemirror2';
+import { useCtx, useTheme } from '@/utils/hooks';
+import SplitPane from 'react-split-pane';
 
 function getFilterData(keyword: string, data: any) {
   const expandedKeys: string[] = [];
@@ -36,23 +39,27 @@ function getFilterData(keyword: string, data: any) {
 }
 
 const Log = () => {
-  const [width, setWidth] = useState('100%');
-  const [marginLeft, setMarginLeft] = useState(0);
-  const [marginTop, setMarginTop] = useState(-72);
   const [title, setTitle] = useState('请选择日志文件');
   const [value, setValue] = useState('请选择日志文件');
   const [select, setSelect] = useState();
   const [data, setData] = useState<any[]>([]);
   const [filterData, setFilterData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [isPhone, setIsPhone] = useState(false);
+  const [height, setHeight] = useState<number>();
+  const treeDom = useRef<any>();
+  const { headerStyle, isPhone } = useCtx();
+  const { theme } = useTheme();
 
-  const getConfig = () => {
-    request.get(`${config.apiPrefix}logs`).then((data) => {
-      const result = formatData(data.dirs) as any;
-      setData(result);
-      setFilterData(result);
-    });
+  const getLogs = () => {
+    setLoading(true);
+    request
+      .get(`${config.apiPrefix}logs`)
+      .then((data) => {
+        const result = formatData(data.dirs) as any;
+        setData(result);
+        setFilterData(result);
+      })
+      .finally(() => setLoading(false));
   };
 
   const formatData = (tree: any[]) => {
@@ -73,13 +80,9 @@ const Log = () => {
   };
 
   const getLog = (node: any) => {
-    setLoading(true);
-    request
-      .get(`${config.apiPrefix}logs/${node.value}`)
-      .then((data) => {
-        setValue(data.data);
-      })
-      .finally(() => setLoading(false));
+    request.get(`${config.apiPrefix}logs/${node.value}`).then((data) => {
+      setValue(data.data);
+    });
   };
 
   const onSelect = (value: any, node: any) => {
@@ -102,24 +105,15 @@ const Log = () => {
   );
 
   useEffect(() => {
-    if (document.body.clientWidth < 768) {
-      setWidth('auto');
-      setMarginLeft(0);
-      setMarginTop(0);
-      setIsPhone(true);
-    } else {
-      setWidth('100%');
-      setMarginLeft(0);
-      setMarginTop(-72);
-      setIsPhone(false);
-    }
-    getConfig();
+    getLogs();
+    setHeight(treeDom.current.clientHeight);
   }, []);
 
   return (
     <PageContainer
       className="ql-container-wrapper log-wrapper"
       title={title}
+      loading={loading}
       extra={
         isPhone && [
           <TreeSelect
@@ -135,49 +129,60 @@ const Log = () => {
         ]
       }
       header={{
-        style: {
-          padding: '4px 16px 4px 15px',
-          position: 'sticky',
-          top: 0,
-          left: 0,
-          zIndex: 20,
-          marginTop,
-          width,
-          marginLeft,
-        },
+        style: headerStyle,
       }}
     >
-      <div className={`${styles['log-container']}`}>
+      <div className={`${styles['log-container']} log-container`}>
         {!isPhone && (
-          <div className={styles['left-tree-container']}>
-            <Input.Search
-              className={styles['left-tree-search']}
-              onChange={onSearch}
-            ></Input.Search>
-            <div className={styles['left-tree-scroller']}>
-              <Tree
-                className={styles['left-tree']}
-                treeData={filterData}
-                onSelect={onTreeSelect}
-              ></Tree>
+          <SplitPane split="vertical" size={200} maxSize={-100}>
+            <div className={styles['left-tree-container']}>
+              <Input.Search
+                className={styles['left-tree-search']}
+                onChange={onSearch}
+              ></Input.Search>
+              <div className={styles['left-tree-scroller']} ref={treeDom}>
+                <Tree
+                  className={styles['left-tree']}
+                  treeData={filterData}
+                  showIcon={true}
+                  height={height}
+                  showLine={{ showLeafIcon: true }}
+                  onSelect={onTreeSelect}
+                ></Tree>
+              </div>
             </div>
-          </div>
+            <Editor
+              language="shell"
+              theme={theme}
+              value={value}
+              options={{
+                readOnly: true,
+                fontSize: 12,
+                lineNumbersMinChars: 3,
+                fontFamily: 'Source Code Pro',
+                folding: false,
+                glyphMargin: false,
+                wordWrap: 'on',
+              }}
+            />
+          </SplitPane>
         )}
-        <CodeMirror
-          value={value}
-          options={{
-            lineNumbers: true,
-            lineWrapping: true,
-            styleActiveLine: true,
-            matchBrackets: true,
-            mode: 'shell',
-            readOnly: true,
-          }}
-          onBeforeChange={(editor, data, value) => {
-            setValue(value);
-          }}
-          onChange={(editor, data, value) => {}}
-        />
+        {isPhone && (
+          <CodeMirror
+            value={value}
+            options={{
+              lineNumbers: true,
+              lineWrapping: true,
+              styleActiveLine: true,
+              matchBrackets: true,
+              readOnly: true,
+            }}
+            onBeforeChange={(editor, data, value) => {
+              setValue(value);
+            }}
+            onChange={(editor, data, value) => {}}
+          />
+        )}
       </div>
     </PageContainer>
   );

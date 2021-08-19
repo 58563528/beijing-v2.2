@@ -38,7 +38,7 @@ export default {
       },
       {
         path: '/diy',
-        name: '自定义脚本',
+        name: '脚本管理',
         icon: <FormOutlined />,
         component: '@/pages/diy/index',
       },

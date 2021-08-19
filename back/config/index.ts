@@ -54,15 +54,23 @@ export default {
   sampleFile,
   confFile,
   cookieFile,
-  fileMap: {
-    'config.sh': confFile,
-    'crontab.list': crontabFile,
-    'extra.sh': extraFile,
-  },
   dbPath,
   cronDbFile,
   cookieDbFile,
   configPath,
   scriptPath,
   samplePath,
+  blackFileList: [
+    'auth.json',
+    'config.sh.sample',
+    'cookie.sh',
+    'crontab.list',
+    'env.sh',
+  ],
+  writePathList: [
+    '/ql/scripts/',
+    '/ql/config/',
+    '/ql/jbot/',
+    '/ql/bak/',
+  ],
 };
