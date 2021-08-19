@@ -37,10 +37,10 @@ export default {
         component: '@/pages/config/index',
       },
       {
-        path: '/diy',
+        path: '/script',
         name: '脚本管理',
         icon: <FormOutlined />,
-        component: '@/pages/diy/index',
+        component: '@/pages/script/index',
       },
       {
         path: '/diff',
