@@ -9,6 +9,7 @@ const route = Router();
 
 export default (app: Router) => {
   app.use('/', route);
+
   route.get(
     '/configs/files',
     async (req: Request, res: Response, next: NextFunction) => {
