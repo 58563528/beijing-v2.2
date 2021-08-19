@@ -3,6 +3,7 @@ lockfileVersion: 5.3
 specifiers:
   '@ant-design/icons': ^4.6.2
   '@ant-design/pro-layout': ^6.5.0
+  '@monaco-editor/react': ^4.2.1
   '@types/cors': ^2.8.10
   '@types/express': ^4.17.8
   '@types/express-jwt': ^6.0.1
@@ -18,7 +19,7 @@ specifiers:
   '@umijs/test': ^3.3.9
   body-parser: ^1.19.0
   celebrate: ^13.0.3
-  codemirror: ^5.59.4
+  codemirror: ^5.62.2
   compression-webpack-plugin: 6.1.1
   cors: ^2.8.5
   cron-parser: ^3.5.0
@@ -43,6 +44,7 @@ specifiers:
   react-dnd: ^14.0.2
   react-dnd-html5-backend: ^14.0.0
   react-dom: 17.x
+  react-split-pane: ^0.1.92
   reflect-metadata: ^0.1.13
   ts-node: ^9.0.0
   typedi: ^0.8.0
@@ -76,6 +78,7 @@ dependencies:
 devDependencies:
   '@ant-design/icons': 4.6.2_react-dom@17.0.2+react@17.0.2
   '@ant-design/pro-layout': 6.18.0_react-dom@17.0.2+react@17.0.2
+  '@monaco-editor/react': 4.2.1_react-dom@17.0.2+react@17.0.2
   '@types/cors': 2.8.10
   '@types/express': 4.17.11
   '@types/express-jwt': 6.0.1
@@ -89,7 +92,7 @@ devDependencies:
   '@types/react-dom': 17.0.5
   '@umijs/plugin-antd': 0.9.1_5ccfec03b6e15849b3687a64fe975f75
   '@umijs/test': 3.4.20_ts-node@9.1.1
-  codemirror: 5.61.0
+  codemirror: 5.62.2
   compression-webpack-plugin: 6.1.1_webpack@5.37.0
   darkreader: 4.9.32
   lint-staged: 10.5.4
@@ -97,11 +100,12 @@ devDependencies:
   prettier: 2.3.0
   qrcode.react: 1.0.1_react@17.0.2
   react: 17.0.2
-  react-codemirror2: 7.2.1_codemirror@5.61.0+react@17.0.2
+  react-codemirror2: 7.2.1_codemirror@5.62.2+react@17.0.2
   react-diff-viewer: 3.1.1_react-dom@17.0.2+react@17.0.2
   react-dnd: 14.0.2_695545ed68ea337339babea285839fc0
   react-dnd-html5-backend: 14.0.0
   react-dom: 17.0.2_react@17.0.2
+  react-split-pane: 0.1.92_react-dom@17.0.2+react@17.0.2
   ts-node: 9.1.1_typescript@4.2.4
   typescript: 4.2.4
   umi: 3.4.20
@@ -866,6 +870,28 @@ packages:
       '@types/node': 14.14.45
       '@types/yargs': 15.0.13
       chalk: 4.1.1
+    dev: true
+
+  /@monaco-editor/loader/1.1.1:
+    resolution: {integrity: sha512-mkT4r4xDjIyOG9o9M6rJDSzEIeonwF80sYErxEvAAL4LncFVdcbNli8Qv6NDqF6nyv6sunuKkDzo4iFjxPL+uQ==}
+    peerDependencies:
+      monaco-editor: '>= 0.21.0 < 1'
+    dependencies:
+      state-local: 1.0.7
+    dev: true
+
+  /@monaco-editor/react/4.2.1_react-dom@17.0.2+react@17.0.2:
+    resolution: {integrity: sha512-yN8qVY0PyFIbqPjfrZ5TbR/wrcfeiwoys8+0QkmyfiOzG74vXxSBOPIUxk7Ly+qCj7qWHPq1uDJskzFGaIqaPA==}
+    peerDependencies:
+      monaco-editor: '>= 0.25.0 < 1'
+      react: ^16.8.0 || ^17.0.0
+      react-dom: ^16.8.0 || ^17.0.0
+    dependencies:
+      '@monaco-editor/loader': 1.1.1
+      prop-types: 15.7.2
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+      state-local: 1.0.7
     dev: true
 
   /@npmcli/move-file/1.1.2:
@@ -2603,8 +2629,8 @@ packages:
     engines: {iojs: '>= 1.0.0', node: '>= 0.12.0'}
     dev: true
 
-  /codemirror/5.61.0:
-    resolution: {integrity: sha512-D3wYH90tYY1BsKlUe0oNj2JAhQ9TepkD51auk3N7q+4uz7A/cgJ5JsWHreT0PqieW1QhOuqxQ2reCXV1YXzecg==}
+  /codemirror/5.62.2:
+    resolution: {integrity: sha512-tVFMUa4J3Q8JUd1KL9yQzQB0/BJt7ZYZujZmTPgo/54Lpuq3ez4C8x/ATUY/wv7b7X3AUq8o3Xd+2C5ZrCGWHw==}
     dev: true
 
   /collect-v8-coverage/1.0.1:
@@ -3336,7 +3362,7 @@ packages:
   /encoding/0.1.13:
     resolution: {integrity: sha512-ETBauow1T35Y/WZMkio9jiM0Z5xjHHmJ4XmjZOq1l/dXz3lr2sRn87nJy20RupqSh1F2m3HHPSp8ShIPQJrJ3A==}
     dependencies:
-      iconv-lite: 0.6.2
+      iconv-lite: 0.6.3
     dev: true
 
   /end-of-stream/1.4.4:
@@ -7711,13 +7737,13 @@ packages:
       strip-json-comments: 2.0.1
     dev: true
 
-  /react-codemirror2/7.2.1_codemirror@5.61.0+react@17.0.2:
+  /react-codemirror2/7.2.1_codemirror@5.62.2+react@17.0.2:
     resolution: {integrity: sha512-t7YFmz1AXdlImgHXA9Ja0T6AWuopilub24jRaQdPVbzUJVNKIYuy3uCFZYa7CE5S3UW6SrSa5nAqVQvtzRF9gw==}
     peerDependencies:
       codemirror: 5.x
       react: '>=15.5 <=16.x'
     dependencies:
-      codemirror: 5.61.0
+      codemirror: 5.62.2
       react: 17.0.2
     dev: true
 
@@ -7860,6 +7886,25 @@ packages:
       react-is: 16.13.1
       tiny-invariant: 1.1.0
       tiny-warning: 1.0.3
+    dev: true
+
+  /react-split-pane/0.1.92_react-dom@17.0.2+react@17.0.2:
+    resolution: {integrity: sha512-GfXP1xSzLMcLJI5BM36Vh7GgZBpy+U/X0no+VM3fxayv+p1Jly5HpMofZJraeaMl73b3hvlr+N9zJKvLB/uz9w==}
+    peerDependencies:
+      react: ^16.0.0-0
+      react-dom: ^16.0.0-0
+    dependencies:
+      prop-types: 15.7.2
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+      react-lifecycles-compat: 3.0.4
+      react-style-proptype: 3.2.2
+    dev: true
+
+  /react-style-proptype/3.2.2:
+    resolution: {integrity: sha512-ywYLSjNkxKHiZOqNlso9PZByNEY+FTyh3C+7uuziK0xFXu9xzdyfHwg4S9iyiRRoPCR4k2LqaBBsWVmSBwCWYQ==}
+    dependencies:
+      prop-types: 15.7.2
     dev: true
 
   /react-tween-state/0.1.5:
@@ -8722,6 +8767,10 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       escape-string-regexp: 2.0.0
+    dev: true
+
+  /state-local/1.0.7:
+    resolution: {integrity: sha512-HTEHMNieakEnoe33shBYcZ7NX83ACUjCu8c40iOGEZsngj9zRnkqS9j1pqQPXwobB0ZcVTk27REb7COQ0UR59w==}
     dev: true
 
   /static-extend/0.1.2:
@@ -9719,6 +9768,7 @@ packages:
 
   /wrappy/1.0.2:
     resolution: {integrity: sha1-tSQ9jz7BqjXxNkYFvA0QNuMKtp8=}
+    dev: true
 
   /write-file-atomic/2.4.1:
     resolution: {integrity: sha512-TGHFeZEZMnv+gBFRfjAcxL5bPHrsGKtnb4qsFAws7/vlh+QfwAaySIw4AXP9ZskTTh5GWu3FLuJhsWVdiJPGvg==}
