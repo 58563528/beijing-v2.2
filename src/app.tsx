@@ -8,7 +8,7 @@ const titleMap: any = {
   '/crontab': '定时任务',
   '/cookie': 'Session管理',
   '/config': '配置文件',
-  '/diy': '脚本管理',
+  '/script': '脚本管理',
   '/diff': '对比工具',
   '/log': '任务日志',
   '/setting': '系统设置',
