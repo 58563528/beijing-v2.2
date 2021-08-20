@@ -50,7 +50,7 @@ cd /ql/jdc/
 if [[ $ENABLE_WEB_JDC == true ]]; then
   #pm2 start JDC
   pwd
-  nohup /ql/jdc//JDC &
+  nohup /ql/jdc/JDC &
   PIDS=`ps -ef |grep JDC |grep -v grep | awk '{print $2}'`
   if [ "$PIDS" != "" ]; then
     echo "myprocess is runing!"
@@ -58,7 +58,7 @@ if [[ $ENABLE_WEB_JDC == true ]]; then
   else
     echo -e "启动JDC...\n"
     pwd
-    nohup /ql/jdc//JDC &
+    nohup /ql/jdc/JDC &
 #运行进程
   fi
   
