@@ -1,7 +1,6 @@
 
 name: Publish Docker Image-v2.2
 on:
-  workflow_dispatch:
   workflow_run:
     workflows:
       - build static-v2.2
