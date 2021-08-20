@@ -8,7 +8,7 @@ on:
       - v2.2.0
     types:
       - completed
-
+      
 jobs:
   build:
     name: Build
