@@ -189,7 +189,7 @@ const Config = () => {
         return (
           <Space size="middle" style={{ paddingLeft: 8 }}>
             <Tooltip title={isPc ? '编辑' : ''}>
-              <a onClick={() => editEnv(record, index)}>
+              <a onClick={() => editCookie(record, index)}>
                 <EditOutlined />
               </a>
             </Tooltip>

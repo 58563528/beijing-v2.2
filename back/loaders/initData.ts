@@ -24,7 +24,7 @@ const initData = [
     name: '互助码',
     command: 'ql code',
     schedule: '30 7 * * *',
-    status: CrontabStatus.idle,
+    isDisabled: 1,
   },
 ];
 

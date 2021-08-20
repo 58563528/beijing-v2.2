@@ -173,18 +173,6 @@ fix_config() {
         echo
     fi
 
-    if [ ! -f $file_task_before ]; then
-        echo -e "复制一份 $file_task_sample 为 $file_task_before\n"
-        cp -fv $file_task_sample $file_task_before
-        echo
-    fi
-
-    if [ ! -f $file_task_after ]; then
-        echo -e "复制一份 $file_task_sample 为 $file_task_after\n"
-        cp -fv $file_task_sample $file_task_after
-        echo
-    fi
-
     if [ ! -f $file_extra_shell ]; then
         echo -e "复制一份 $file_extra_sample 为 $file_extra_shell\n"
         cp -fv $file_extra_sample $file_extra_shell
