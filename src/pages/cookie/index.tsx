@@ -124,6 +124,7 @@ const Config = () => {
       dataIndex: 'nickname',
       key: 'nickname',
       align: 'center' as const,
+      sorter: (a: any, b: any) => a.name.localeCompare(b.name),
       width: '15%',
       render: (text: string, record: any, index: number) => {
         const match = record.value.match(/pt_pin=([^; ]+)(?=;?)/);
@@ -222,7 +223,6 @@ const Config = () => {
   const [editedCookie, setEditedCookie] = useState();
   const [selectedRowIds, setSelectedRowIds] = useState<string[]>([]);
   const [searchText, setSearchText] = useState('');
-  const { headerStyle, isPhone } = useCtx();
 
   const getCookies = () => {
     setLoading(true);
@@ -461,7 +461,7 @@ const Config = () => {
 
   return (
     <PageContainer
-      className="session-wrapper"
+      className="ql-container-wrapper env-wrapper"
       title="Session管理"
       extra={[
         <Search
@@ -519,7 +519,7 @@ const Config = () => {
           scroll={{ x: 768 }}
           components={components}
           loading={loading}
-          onRow={(record, index) => {
+          onRow={(record: any, index: number) => {
             return {
               index,
               moveRow,
