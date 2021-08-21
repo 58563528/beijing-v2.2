@@ -447,15 +447,6 @@ const Config = ({ headerStyle, isPhone, theme }: any) => {
     setSearchText(value);
   };
   useEffect(() => {
-    if (document.body.clientWidth < 768) {
-      setWidth('auto');
-      setMarginLeft(0);
-      setMarginTop(0);
-    } else {
-      setWidth('100%');
-      setMarginLeft(0);
-      setMarginTop(-72);
-    }
     getCookies();
   }, [searchText]);
 
