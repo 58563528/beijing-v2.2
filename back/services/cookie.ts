@@ -7,6 +7,7 @@ import * as fs from 'fs';
 import got from 'got';
 import DataStore from 'nedb';
 import { Cookie, CookieStatus, initCookiePosition } from '../data/cookie';
+import _ from 'lodash';
 
 @Service()
 export default class CookieService {

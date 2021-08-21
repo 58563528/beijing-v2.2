@@ -109,7 +109,7 @@ const DragableBodyRow = ({
   );
 };
 
-const Config = () => {
+const Config = ({ headerStyle, isPhone, theme }: any) => {
   const columns = [
     {
       title: '序号',

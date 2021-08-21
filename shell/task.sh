@@ -177,6 +177,12 @@ run_concurrent() {
         timeout -k 10s $command_timeout_time $which_program $p1 &>$single_log_path 2>&1 &
     done
 
+    wait
+    for i in "${!array[@]}"; do
+        single_log_path="$log_dir/${single_log_time}_$((i + 1)).log"
+        cat $single_log_path >> $log_path
+        [ -f $single_log_path ] && rm -f $single_log_path
+    done
     [[ $id ]] && update_cron "\"$id\"" "1" "" "$log_path"
     local end_time=$(date '+%Y-%m-%d %H:%M:%S')
     local diff_time=$(($(date +%s -d "$end_time") - $(date +%s -d "$begin_time")))
