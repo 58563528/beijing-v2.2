@@ -1,8 +1,6 @@
 
 name: Publish Docker Image-v2.2
 on:
-  #push:
-  #  branches: [ v2.2.0 ]
   workflow_run:
     workflows:
       - build static-v2.2
