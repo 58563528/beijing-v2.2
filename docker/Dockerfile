@@ -1,7 +1,7 @@
 FROM node:lts-alpine
 LABEL maintainer="jizhuni"
-ARG QL_URL=https://github.com/58563528/beijing.git
-ARG QL_BRANCH=v2.2.0
+ARG QL_URL=https://github.com/58563528/beijing-v2.2.git
+ARG QL_BRANCH=master
 ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
     LANG=zh_CN.UTF-8 \
     SHELL=/bin/bash \
