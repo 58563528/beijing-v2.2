@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, message, Input, Form, Statistic } from 'antd';
+import { Modal, message, Input, Form, Statistic, Button } from 'antd';
 import { request } from '@/utils/http';
 import config from '@/utils/config';
 import {
@@ -57,7 +57,11 @@ const CronLogModal = ({
               content: (
                 <span>
                   系统将在
-                  <Countdown format="ss" value={Date.now() + 1000 * 10} />
+                  <Countdown
+                    className="inline-countdown"
+                    format="ss"
+                    value={Date.now() + 1000 * 10}
+                  />
                   秒后自动刷新
                 </span>
               ),
@@ -114,6 +118,11 @@ const CronLogModal = ({
       forceRender
       onOk={() => cancel()}
       onCancel={() => cancel()}
+      footer={[
+        <Button type="primary" onClick={() => cancel()}>
+          知道了
+        </Button>,
+      ]}
     >
       {!loading && value && (
         <pre

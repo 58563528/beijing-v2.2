@@ -138,7 +138,7 @@ add_cron() {
             [[ -z $cron_name ]] && cron_name="$file_name"
             [[ -z $cron_line ]] && cron_line=$(grep "cron:" $file | awk -F ":" '{print $2}' | head -1 | xargs)
             [[ -z $cron_line ]] && cron_line=$(grep "cron " $file | awk -F "cron \"" '{print $2}' | awk -F "\" " '{print $1}' | head -1 | xargs)
-            [[ -z $cron_line ]] && cron_line="0 6 * * *"
+            [[ -z $cron_line ]] && cron_line="$default_cron"
             result=$(add_cron_api "$cron_line:$cmd_task $file:$cron_name")
             echo -e "$result"
             if [[ $detail ]]; then
@@ -228,7 +228,7 @@ update_raw() {
         [[ -z $cron_name ]] && cron_name="$raw_file_name"
         [[ -z $cron_line ]] && cron_line=$(grep "cron:" $raw_file_name | awk -F ":" '{print $2}' | head -1 | xargs)
         [[ -z $cron_line ]] && cron_line=$(grep "cron " $raw_file_name | awk -F "cron \"" '{print $2}' | awk -F "\" " '{print $1}' | head -1 | xargs)
-        [[ -z $cron_line ]] && cron_line="0 6 * * *"
+        [[ -z $cron_line ]] && cron_line="$default_cron"
         if [[ -z $cron_id ]]; then
             result=$(add_cron_api "$cron_line:$cmd_task $filename:$cron_name")
             echo -e "$result\n"
@@ -450,12 +450,12 @@ main() {
     case $p1 in
     update)
         echo -e "## 开始执行... $begin_time\n" >> $log_path
-        cat $task_error_log_path >> $log_path
+        [[ -f $task_error_log_path ]] &&  cat $task_error_log_path >> $log_path
         update_qinglong "$2" >> $log_path
         ;;
     extra)
         echo -e "## 开始执行... $begin_time\n" >> $log_path
-        cat $task_error_log_path >> $log_path
+        [[ -f $task_error_log_path ]] &&  cat $task_error_log_path >> $log_path
         run_extra_shell >> $log_path
         ;;
     repo)
@@ -463,7 +463,7 @@ main() {
         get_uniq_path "$p2" "$p6"
         log_path="$dir_log/update/${log_time}_${uniq_path}.log"
         echo -e "## 开始执行... $begin_time\n" >> $log_path
-        cat $task_error_log_path >> $log_path
+        [[ -f $task_error_log_path ]] &&  cat $task_error_log_path >> $log_path
         if [[ -n $p2 ]]; then
             update_repo "$p2" "$p3" "$p4" "$p5" "$p6" >> $log_path
         else
@@ -476,7 +476,7 @@ main() {
         get_uniq_path "$p2"
         log_path="$dir_log/update/${log_time}_${uniq_path}.log"
         echo -e "## 开始执行... $begin_time\n" >> $log_path
-        cat $task_error_log_path >> $log_path
+        [[ -f $task_error_log_path ]] &&  cat $task_error_log_path >> $log_path
         if [[ -n $p2 ]]; then
             update_raw "$p2" >> $log_path
         else
@@ -486,27 +486,27 @@ main() {
         ;;
     rmlog)
         echo -e "## 开始执行... $begin_time\n" >> $log_path
-        cat $task_error_log_path >> $log_path
+        [[ -f $task_error_log_path ]] &&  cat $task_error_log_path >> $log_path
         . $dir_shell/rmlog.sh "$p2" >> $log_path
         ;;
     code)
          echo -e "## 开始执行... $begin_time\n" >> $log_path
-	 cat $task_error_log_path >> $log_path
+        [[ -f $task_error_log_path ]] &&  cat $task_error_log_path >> $log_path
         . $dir_shell/code.sh "$p2" >> $log_path
         ;;
     bot)
         echo -e "## 开始执行... $begin_time\n" >> $log_path
-        cat $task_error_log_path >> $log_path
+        [[ -f $task_error_log_path ]] &&  cat $task_error_log_path >> $log_path
         . $dir_shell/bot.sh >> $log_path
         ;;
     check)
         echo -e "## 开始执行... $begin_time\n" >> $log_path
-        cat $task_error_log_path >> $log_path
+        [[ -f $task_error_log_path ]] &&  cat $task_error_log_path >> $log_path
         . $dir_shell/check.sh >> $log_path
         ;;
     reset)
         echo -e "## 开始执行... $begin_time\n" >> $log_path
-        cat $task_error_log_path >> $log_path	
+        [[ -f $task_error_log_path ]] &&  cat $task_error_log_path >> $log_path
         . $dir_shell/reset.sh >> $log_path
         ;;
     *)

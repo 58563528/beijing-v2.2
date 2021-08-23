@@ -70,6 +70,7 @@ import_config() {
     github_proxy_url=${GithubProxyUrl:-""}
     block_cookie=${TempBlockCookie:-""}
     file_extensions=${RepoFileExtensions:-"js py"}
+    default_cron="$(random_range 0 59) $(random_range 0 23) * * *"
 }
 
 ## 创建目录，$1：目录的绝对路径
@@ -298,6 +299,12 @@ git_pull_scripts() {
 
 
 ## 导入配置文件，检测平台，创建软连接，识别命令，修复配置文件
+random_range() {
+    local beg=$1
+    local end=$2
+    echo $((RANDOM % ($end - $beg) + $beg))
+}
+
 init_env
 detect_termux
 detect_macos
