@@ -32,6 +32,8 @@ file_notify_py_sample=$dir_sample/notify.py
 file_notify_py=$dir_scripts/notify.py
 file_notify_js=$dir_scripts/sendNotify.js
 task_error_log_path=$dir_log/task_error.log
+nginx_app_conf=$dir_root/docker/front.conf
+nginx_conf=$dir_root/docker/nginx.conf
 
 ## 清单文件
 list_crontab_user=$dir_config/crontab.list
@@ -70,7 +72,12 @@ import_config() {
     github_proxy_url=${GithubProxyUrl:-""}
     block_cookie=${TempBlockCookie:-""}
     file_extensions=${RepoFileExtensions:-"js py"}
-    default_cron="$(random_range 0 59) $(random_range 0 23) * * *"
+
+    if [[ -n "${DefaultCronRule}" ]]; then
+        default_cron="${DefaultCronRule}"
+    else
+        default_cron="$(random_range 0 59) $(random_range 0 23) * * *"
+    fi
 }
 
 ## 创建目录，$1：目录的绝对路径

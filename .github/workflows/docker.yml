@@ -1,9 +1,9 @@
 
-name: Publish Docker Image-v2.2
+name: PublishDockerImage
 on:
   workflow_run:
     workflows:
-      - build static-v2.2
+      - BuildStatic
     branches:
       - master
     types:
@@ -30,7 +30,7 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
           echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USERNAME}" --password-stdin
-      - name: Docker buildx image and push on release
+      - name: Docker buildx image and push on master branch
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |

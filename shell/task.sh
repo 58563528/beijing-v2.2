@@ -138,7 +138,7 @@ run_normal() {
     local id=$(cat $list_crontab_user | grep -E "$cmd_task $first_param" | perl -pe "s|.*ID=(.*) $cmd_task $first_param\.*|\1|" | head -1 | awk -F " " '{print $1}')
     [[ $id ]] && update_cron "\"$id\"" "0" "$$" "$log_path"
 
-    timeout -k 10s $command_timeout_time $which_program $p1 >> $log_path 2>&1
+    eval timeout -k 10s $command_timeout_time $which_program $first_param $cmd
 
     [[ $id ]] && update_cron "\"$id\"" "1" "" "$log_path"
     local end_time=$(date '+%Y-%m-%d %H:%M:%S')
@@ -173,7 +173,7 @@ run_concurrent() {
     [[ -f $task_error_log_path ]] && eval cat $task_error_log_path $cmd
     local id=$(cat $list_crontab_user | grep -E "$cmd_task $first_param" | perl -pe "s|.*ID=(.*) $cmd_task $first_param\.*|\1|" | head -1 | awk -F " " '{print $1}')
     [[ $id ]] && update_cron "\"$id\"" "0" "$$" "$log_path"
-    echo -e "\n各账号间已经在后台开始并发执行，前台不输入日志，日志直接写入文件中。\n" | tee -p -a $log_path
+    echo -e "\n各账号间已经在后台开始并发执行，前台不输入日志，日志直接写入文件中。\n" >> $log_path
 
     single_log_time=$(date "+%Y-%m-%d-%H-%M-%S.%N")
     for i in "${!array[@]}"; do
@@ -211,7 +211,7 @@ run_else() {
     local id=$(cat $list_crontab_user | grep -E "$cmd_task $first_param" | perl -pe "s|.*ID=(.*) $cmd_task $first_param\.*|\1|" | head -1 | awk -F " " '{print $1}')
     [[ $id ]] && update_cron "\"$id\"" "0" "$$" "$log_path"
 
-    timeout -k 10s $command_timeout_time "$@" >> $log_path 2>&1
+    eval timeout -k 10s $command_timeout_time "$@" $cmd
 
     [[ $id ]] && update_cron "\"$id\"" "1" "" "$log_path"
     local end_time=$(date '+%Y-%m-%d %H:%M:%S')

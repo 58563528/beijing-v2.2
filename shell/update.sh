@@ -290,7 +290,7 @@ update_qinglong() {
     local url="${github_proxy_url}https://github.com/58563528/beijing_static_v2.2.git"
     if [ -d ${ql_static_repo}/.git ]; then
         reset_romote_url ${ql_static_repo} ${url} "master"
-        git_pull_scripts ${ql_static_repo} "master“
+        git_pull_scripts ${ql_static_repo} "master"
     else
         git_clone_scripts ${url} ${ql_static_repo}
     fi
